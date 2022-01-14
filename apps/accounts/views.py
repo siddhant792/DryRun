@@ -63,3 +63,20 @@ class LogoutUserView(rest_framwork_generics.DestroyAPIView):
             token.delete()
             return Response({'message': "Logout Successful"}, status=HTTP_200_OK)
         return Response({'message': "Logout Failed"}, status=HTTP_400_BAD_REQUEST)
+
+
+class UpdateUserView(rest_framwork_generics.UpdateAPIView):
+    """
+    Update the user profile
+    """
+    serializer_class = accounts_serializers.UserProfileSerializer
+    queryset = accounts_models.User.objects.all()
+
+    def partial_update(self, request, *args, **kwargs):
+        user = request._user
+        user_serializer = self.serializer_class(instance=user, data=request.data, partial=True)
+        user_serializer.is_valid(raise_exception=True)
+        for field in request.data:
+            setattr(user, field, request.data[field])
+        user.save()
+        return Response(dict(self.serializer_class(instance=user).data))
