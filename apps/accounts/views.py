@@ -79,4 +79,6 @@ class UpdateUserView(rest_framwork_generics.UpdateAPIView):
         for field in request.data:
             setattr(user, field, request.data[field])
         user.save()
-        return Response(dict(self.serializer_class(instance=user).data))
+        return_data = dict(self.serializer_class(instance=user).data)
+        return_data['skills'] = eval(return_data['skills'])
+        return Response(return_data)
