@@ -53,15 +53,15 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(
         default=False, help_text="This user has all permissions without explicitly assigning them"
     )
-    gender = models.CharField(choices=GENDER_CHOICE, max_length=50, help_text="Gender of the user", null=True)
+    gender = models.CharField(choices=GENDER_CHOICE, max_length=50, help_text="Gender of the user", null=True, blank=True)
     password = models.CharField(max_length=150)
-    location = models.CharField(max_length=200, help_text="Location of the user")
-    summary = models.CharField(max_length=500, help_text="Summary of the user")
-    date_of_birth = models.DateField(help_text="Date of Birth of the user", null=True)
-    website = models.CharField(max_length=100, help_text="Website of the user")
-    education = models.CharField(max_length=150, help_text="Education of the user")
-    work = models.CharField(max_length=100, help_text="Work of the user")
-    profile_pic = models.CharField(max_length=300, help_text="Profile pic url of the user")
+    location = models.CharField(max_length=200, help_text="Location of the user", blank=True)
+    summary = models.CharField(max_length=500, help_text="Summary of the user", blank=True)
+    date_of_birth = models.DateField(help_text="Date of Birth of the user", null=True, blank=True)
+    website = models.CharField(max_length=100, help_text="Website of the user", blank=True)
+    education = models.CharField(max_length=150, help_text="Education of the user", blank=True)
+    work = models.CharField(max_length=100, help_text="Work of the user", blank=True)
+    profile_pic = models.CharField(max_length=300, help_text="Profile pic url of the user", blank=True)
     skills = models.CharField(max_length=1000, help_text="Skill set of the user", default="[]")
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -87,6 +87,6 @@ class User(AbstractBaseUser):
         # Simplest possible answer: Yes, always
         return True
 
-    def save(self, *args, **kwargs):
-        self.password = make_password(self.password)
-        super(User, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     self.password = make_password(self.password)
+    #     super(User, self).save(*args, **kwargs)

@@ -20,7 +20,7 @@ class UserSerializer(rest_framework_serializers.ModelSerializer):
 
     class Meta:
         model = accounts_models.User
-        fields = ['id', 'email', 'name', 'password', 'username', 'token']
+        fields = ['email', 'name', 'password', 'username', 'token']
         extra_kwargs = {
             'password': {'write_only': True},
         }
