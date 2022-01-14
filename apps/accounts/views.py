@@ -2,10 +2,13 @@ from rest_framework import generics as rest_framwork_generics
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token as AuthToken
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework import status
 
-from apps.accounts import serializers as accounts_serializers
-from apps.accounts import models as accounts_models
+from apps.accounts import (
+    serializers as accounts_serializers,
+    models as accounts_models,
+    utils as accounts_utils,
+)
 
 
 class RegisterUserView(rest_framwork_generics.CreateAPIView):
@@ -61,8 +64,8 @@ class LogoutUserView(rest_framwork_generics.DestroyAPIView):
         token = self.query_set.filter(user=request.user)
         if token:
             token.delete()
-            return Response({'message': "Logout Successful"}, status=HTTP_200_OK)
-        return Response({'message': "Logout Failed"}, status=HTTP_400_BAD_REQUEST)
+            return Response({'message': "Logout Successful"}, status=status.HTTP_200_OK)
+        return Response({'message': "Logout Failed"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdateUserView(rest_framwork_generics.UpdateAPIView):
@@ -77,7 +80,17 @@ class UpdateUserView(rest_framwork_generics.UpdateAPIView):
         user_serializer = self.serializer_class(instance=user, data=request.data, partial=True)
         user_serializer.is_valid(raise_exception=True)
         for field in request.data:
-            setattr(user, field, request.data[field])
+            if field == 'profile_pic_file':
+                try:
+                    cloud_url = accounts_utils.upload_document(user, request.data['profile_pic_file'])
+                    setattr(user, 'profile_pic', cloud_url)
+                except:
+                    return Response(
+                        {'message': "Unexpected error while communicating database"}, 
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    )
+            else:
+                setattr(user, field, request.data[field])
         user.save()
         return_data = dict(self.serializer_class(instance=user).data)
         return_data['skills'] = eval(return_data['skills'])
